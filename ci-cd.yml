@@ -1,0 +1,43 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+# 1. Se connecter à Docker Hub 
+      - name: Connexion a Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_AMIN }} 
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+# 2. Builder et pousser l'image du Backend
+      - name: Build and push Backend
+        uses: docker/build-push-action@v5
+        with:
+          [cite_start]context: ./springboot/app [cite: 12, 13]
+          [cite_start]push: true [cite: 47]
+          tags: ${{ secrets.DOCKERHUB_AMIN }}/springboot-app:latest
+
+      # 3. Builder et pousser l'image du Frontend
+      - name: Build and push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          [cite_start]context: ./angular-app [cite: 14, 15]
+          [cite_start]push: true [cite: 47]
+          tags: ${{ secrets.DOCKERHUB_AMIN }}/angular-app:latest
+# Étape 3 - Test de l'application complète [cite: 48, 49]
+      - name: Test de l'application complète
+        run: |
+          docker-compose up -d [cite: 50]
+          echo "Attente du démarrage des services..."
+          sleep 30
+          docker ps [cite: 51, 52]          
